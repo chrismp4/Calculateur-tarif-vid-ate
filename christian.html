@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Christian · Tarif">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0d">
+<title>Christian — Calculateur Tarif</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;--accent:#e8ff47;--accent2:#ff6b35;--text:#f0f0f0;--muted:#666;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);--safe-left:env(safe-area-inset-left);--safe-right:env(safe-area-inset-right);}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overscroll-behavior:none;}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;padding-top:calc(var(--safe-top) + 1.25rem);padding-bottom:calc(var(--safe-bottom) + 1.5rem);padding-left:calc(var(--safe-left) + 1rem);padding-right:calc(var(--safe-right) + 1rem);-webkit-font-smoothing:antialiased;}
+  .container{max-width:520px;margin:0 auto;}
+  header{margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem;}
+  .label-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;display:block;}
+  h1{font-size:1.7rem;font-weight:800;line-height:1.1;}
+  h1 span{color:var(--accent);}
+  .sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:.4rem;}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:.75rem;}
+  .section-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.875rem;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+  .type-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .15s;text-align:left;-webkit-user-select:none;user-select:none;}
+  .type-btn:active{transform:scale(.97);}
+  .type-btn.active{border-color:var(--accent);background:rgba(232,255,71,.07);}
+  .btn-name{font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:2px;line-height:1.3;}
+  .btn-base{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+  .type-btn.active .btn-base{color:var(--accent);}
+  .badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;background:rgba(232,255,71,.12);color:var(--accent);border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);gap:12px;}
+  .toggle-row:last-child{border-bottom:none;padding-bottom:0;}
+  .toggle-row:first-child{padding-top:0;}
+  .toggle-label{font-size:13px;font-weight:600;line-height:1.3;}
+  .toggle-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+  .toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+  .toggle input{opacity:0;width:0;height:0;position:absolute;}
+  .toggle-track{position:absolute;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;}
+  .toggle-track::after{content:'';position:absolute;width:18px;height:18px;background:var(--muted);border-radius:50%;top:2px;left:2px;transition:all .2s;}
+  .toggle input:checked+.toggle-track{background:rgba(232,255,71,.15);border-color:var(--accent);}
+  .toggle input:checked+.toggle-track::after{background:var(--accent);transform:translateX(20px);}
+  .qty-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);gap:12px;}
+  .qty-row:last-child{border-bottom:none;padding-bottom:0;}
+  .qty-controls{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .qty-btn{width:36px;height:36px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Mono',monospace;-webkit-user-select:none;user-select:none;}
+  .qty-btn:active{transform:scale(.93);border-color:var(--accent);color:var(--accent);}
+  .qty-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;min-width:24px;text-align:center;}
+  .result-box{background:var(--surface);border:1px solid var(--accent);border-radius:14px;padding:1.25rem;margin-bottom:.75rem;position:relative;overflow:hidden;}
+  .result-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);}
+  .result-main{display:flex;align-items:baseline;gap:8px;margin-bottom:.2rem;}
+  .result-price{font-size:2.8rem;font-weight:800;color:var(--accent);line-height:1;transition:all .2s;}
+  .result-unit{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);}
+  .result-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;}
+  .breakdown{border-top:1px solid var(--border);padding-top:.875rem;display:grid;gap:7px;}
+  .breakdown-row{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:12px;}
+  .breakdown-label{color:var(--muted);}
+  .breakdown-val{font-weight:500;}
+  .breakdown-val.accent{color:var(--accent);}
+  .breakdown-sep{border-top:1px dashed var(--border);margin:2px 0;}
+  .duree-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+  .duree-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem;}
+  .duree-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+  .duree-card.highlight{border-color:var(--accent);background:rgba(232,255,71,.05);}
+  .duree-val{font-size:1.4rem;font-weight:800;display:block;line-height:1.1;}
+  .duree-card.highlight .duree-val{color:var(--accent);}
+  .duree-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;display:block;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .bar-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:70px;}
+  .bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;transition:width .3s;}
+  .bar-val{font-family:'DM Mono',monospace;font-size:10px;min-width:42px;text-align:right;font-weight:500;}
+  .taux-row{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
+  .taux-label{color:var(--muted);}
+  .taux-val{color:var(--accent);font-weight:500;}
+  .info-box{background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-family:'DM Mono',monospace;font-size:11px;color:#ccc;line-height:1.6;}
+  .conseil-box{background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.25);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;}
+  .conseil-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+  .conseil-text{font-size:13px;color:#ccc;line-height:1.6;}
+  .obj-row{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);}
+  .obj-row:last-child{border-bottom:none;}
+  .obj-label{color:var(--muted);}
+  .obj-val{font-weight:500;}
+  .obj-total{color:var(--accent);font-size:14px;font-weight:700;}
+
+  .pack-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .15s;text-align:left;-webkit-user-select:none;user-select:none;}
+  .pack-btn:active{transform:scale(.97);}
+  .pack-btn.active{border-color:var(--accent);background:rgba(232,255,71,.07);}
+  .pack-btn .btn-name{font-size:13px;font-weight:700;color:var(--text);display:block;margin-bottom:2px;}
+  .pack-btn .btn-base{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+  .pack-btn.active .btn-base{color:var(--accent);}
+  .pack-total{background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.2);border-radius:10px;padding:10px 14px;margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);}
+  .hidden{display:none!important;}
+  .install-banner{background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.2);border-radius:10px;padding:10px 14px;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .install-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);line-height:1.5;}
+  .install-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="install-banner" id="install-banner">
+    <span class="install-text">// Partager > Sur l ecran d accueil pour installer</span>
+    <button class="install-close" onclick="document.getElementById('install-banner').style.display='none'">x</button>
+  </div>
+  <header>
+    <span class="label-tag">Christian · Videaste Paris</span>
+    <h1><span>Mes</span> tarifs</h1>
+    <p class="sub">// Retainer · Reels · Evenementiel · HT</p>
+  </header>
+  <div class="section">
+    <div class="section-title">01 - Mission</div>
+    <div class="type-grid">
+      <button class="type-btn active" data-type="retainer" data-base="1500" onclick="selectType(this)"><span class="btn-name">Retainer mensuel <span class="badge">star</span></span><span class="btn-base">base 1 500 EUR/mois</span></button>
+      <button class="type-btn" data-type="reels" data-base="120" onclick="selectType(this)"><span class="btn-name">Reels / formats courts <span class="badge">star</span></span><span class="btn-base">base 120 EUR/video</span></button>
+      <button class="type-btn" data-type="aftermovie" data-base="800" onclick="selectType(this)"><span class="btn-name">Aftermovie evenement</span><span class="btn-base">base 800 EUR</span></button>
+      <button class="type-btn" data-type="tournage" data-base="450" onclick="selectType(this)"><span class="btn-name">Tournage seul</span><span class="btn-base">base 450 EUR/j</span></button>
+      <button class="type-btn" data-type="montage" data-base="350" onclick="selectType(this)"><span class="btn-name">Montage seul</span><span class="btn-base">base 350 EUR/j</span></button>
+      <button class="type-btn" data-type="corporate" data-base="2000" onclick="selectType(this)"><span class="btn-name">Film corporate</span><span class="btn-base">base 2 000 EUR</span></button>
+      <button class="type-btn" data-type="derushs" data-base="50" onclick="selectType(this)"><span class="btn-name">Derushage seul</span><span class="btn-base">base 50 EUR/h de rush</span></button>
+      <button class="type-btn" data-type="youtube" data-base="200" onclick="selectType(this)"><span class="btn-name">Pack YouTube + TikTok <span class="badge">NEW</span></span><span class="btn-base">base 200 EUR</span></button>
+    </div>
+  </div>
+  <div class="section hidden" id="youtube-pack-section">
+    <div class="section-title">01b - Pack YouTube + TikTok</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-family:DM Mono,monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">DUREE VIDEO YOUTUBE</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;">
+        <button class="pack-btn active" data-yt="10" data-price="200" onclick="selectYT(this)"><span class="btn-name">10 min</span><span class="btn-base">200 EUR</span></button>
+        <button class="pack-btn" data-yt="20" data-price="250" onclick="selectYT(this)"><span class="btn-name">20 min</span><span class="btn-base">250 EUR</span></button>
+        <button class="pack-btn" data-yt="30" data-price="300" onclick="selectYT(this)"><span class="btn-name">30 min</span><span class="btn-base">300 EUR</span></button>
+      </div>
+    </div>
+    <div class="qty-row" style="border:none;padding:0;margin-bottom:10px;">
+      <div><div class="toggle-label">TikTok / Reels inclus</div><div class="toggle-sub">80 EUR par format court</div></div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty('tiktok',-1)">-</button>
+        <span class="qty-val" id="qty-tiktok">2</span>
+        <button class="qty-btn" onclick="changeQty('tiktok',1)">+</button>
+      </div>
+    </div>
+    <div class="pack-total" id="pack-detail">YouTube 10min (200 EUR) + 2 TikTok (160 EUR) = 360 EUR</div>
+  </div>
+  <div class="section">
+    <div class="section-title">02 - Options</div>
+    <div id="qty-jours-row" class="hidden">
+      <div class="qty-row">
+        <div><div class="toggle-label">Jours de tournage</div><div class="toggle-sub">Duree sur le terrain</div></div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('jours',-1)">-</button>
+          <span class="qty-val" id="qty-jours">1</span>
+          <button class="qty-btn" onclick="changeQty('jours',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div id="qty-videos-row" class="hidden">
+      <div class="qty-row">
+        <div><div class="toggle-label">Nombre de videos</div><div class="toggle-sub">Formats livres</div></div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('videos',-1)">-</button>
+          <span class="qty-val" id="qty-videos">8</span>
+          <button class="qty-btn" onclick="changeQty('videos',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div id="qty-rush-row" class="hidden">
+      <div class="qty-row">
+        <div><div class="toggle-label">Heures de rush</div><div class="toggle-sub">Duree totale des rushes</div></div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('rush',-1)">-</button>
+          <span class="qty-val" id="qty-rush">1</span>
+          <button class="qty-btn" onclick="changeQty('rush',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Rush livraison 48h</div><div class="toggle-sub">+20% sur le total</div></div>
+      <label class="toggle"><input type="checkbox" id="toggle-rush" onchange="calculate()"><span class="toggle-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Deplacement hors Paris</div><div class="toggle-sub">+60 EUR forfait transport</div></div>
+      <label class="toggle"><input type="checkbox" id="toggle-deplacement" onchange="calculate()"><span class="toggle-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Revisions supplementaires</div><div class="toggle-sub">+50 EUR par round</div></div>
+      <label class="toggle"><input type="checkbox" id="toggle-revision" onchange="calculate()"><span class="toggle-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Droits elargis</div><div class="toggle-sub">Pub payante, broadcast +30%</div></div>
+      <label class="toggle"><input type="checkbox" id="toggle-droits" onchange="calculate()"><span class="toggle-track"></span></label>
+    </div>
+  </div>
+  <div class="result-box">
+    <div class="result-label">Prix a proposer au client</div>
+    <div class="result-main"><span class="result-price" id="result-price">1 500 EUR</span><span class="result-unit">HT</span></div>
+    <div class="breakdown">
+      <div class="breakdown-row"><span class="breakdown-label">Base prestation</span><span class="breakdown-val" id="b-base">1 500 EUR</span></div>
+      <div class="breakdown-row hidden" id="b-rush-row"><span class="breakdown-label">Rush +20%</span><span class="breakdown-val accent" id="b-rush">+0 EUR</span></div>
+      <div class="breakdown-row hidden" id="b-dep-row"><span class="breakdown-label">Deplacement</span><span class="breakdown-val accent" id="b-dep">+60 EUR</span></div>
+      <div class="breakdown-row hidden" id="b-rev-row"><span class="breakdown-label">Revision supp.</span><span class="breakdown-val accent" id="b-rev">+50 EUR</span></div>
+      <div class="breakdown-row hidden" id="b-drt-row"><span class="breakdown-label">Droits elargis +30%</span><span class="breakdown-val accent" id="b-drt">+0 EUR</span></div>
+      <div class="breakdown-sep"></div>
+      <div class="breakdown-row"><span class="breakdown-label">Acompte 30%</span><span class="breakdown-val" id="b-acompte">450 EUR</span></div>
+      <div class="breakdown-row"><span class="breakdown-label">Solde a la livraison</span><span class="breakdown-val" id="b-solde">1 050 EUR</span></div>
+      <div class="breakdown-sep"></div>
+      <div class="breakdown-row"><span class="breakdown-label">Net estime (-22% charges)</span><span class="breakdown-val accent" id="b-net">1 170 EUR</span></div>
+    </div>
+  </div>
+  <div class="section" id="duree-section">
+    <div class="section-title">03 - Duree estimee</div>
+    <div id="duree-normal">
+      <div class="duree-grid">
+        <div class="duree-card"><span class="duree-val" id="d-tournage">0.5j</span><span class="duree-label">Tournage</span></div>
+        <div class="duree-card"><span class="duree-val" id="d-montage">1j</span><span class="duree-label">Montage</span></div>
+        <div class="duree-card highlight"><span class="duree-val" id="d-total">1.5j</span><span class="duree-label">Total mission</span></div>
+      </div>
+      <div class="bar-row"><span class="bar-label">Tournage</span><div class="bar-track"><div class="bar-fill" id="bar-tournage" style="width:33%;background:#378ADD;"></div></div><span class="bar-val" id="bval-tournage">0.5j</span></div>
+      <div class="bar-row"><span class="bar-label">Montage</span><div class="bar-track"><div class="bar-fill" id="bar-montage" style="width:66%;background:#e8ff47;"></div></div><span class="bar-val" id="bval-montage">1j</span></div>
+    </div>
+    <div id="duree-derushs" class="hidden">
+      <div class="info-box" id="derushs-detail">1h de rush = 15min de derushage (ratio 4:1)</div>
+      <div class="duree-grid-2">
+        <div class="duree-card"><span class="duree-val" id="d-rush-h">1h</span><span class="duree-label">Rush a traiter</span></div>
+        <div class="duree-card highlight"><span class="duree-val" id="d-rush-t">15min</span><span class="duree-label">Temps estime</span></div>
+      </div>
+      <div class="bar-row"><span class="bar-label">Derushage</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#e8ff47;"></div></div><span class="bar-val" id="bval-derushs">15min</span></div>
+    </div>
+    <div class="taux-row"><span class="taux-label">Taux horaire effectif</span><span class="taux-val" id="taux-horaire">125 EUR/h</span></div>
+  </div>
+  <div class="conseil-box">
+    <div class="conseil-tag">// conseil Christian</div>
+    <div class="conseil-text" id="conseil-text">Exige un engagement 3 mois minimum. C est ton revenu de base.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">04 - Objectif 5 000 EUR/mois</div>
+    <div class="obj-row"><span class="obj-label">3 retainers x 1 500 EUR</span><span class="obj-val">4 500 EUR</span></div>
+    <div class="obj-row"><span class="obj-label">+ 1 aftermovie ponctuel</span><span class="obj-val">700 EUR</span></div>
+    <div class="obj-row"><span class="obj-label">Total brut</span><span class="obj-total">5 200 EUR</span></div>
+    <div class="obj-row"><span class="obj-label">Charges -22%</span><span class="obj-val" style="color:var(--accent2);">-1 144 EUR</span></div>
+    <div class="obj-row"><span class="obj-label">Net estime</span><span class="obj-total">env. 4 056 EUR net</span></div>
+    <div class="obj-row"><span class="obj-label">Jours travailles estimes</span><span class="obj-val" id="obj-jours">~12j/mois</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;">// 3 clients recurrents + missions ponctuelles Paris</div>
+  </div>
+</div>
+<script>
+var currentType='retainer',basePrice=1500,qty={jours:1,videos:8,rush:1,tiktok:2};
+var ytPrice=200,ytMin=10;
+var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+if(!isIOS||window.navigator.standalone)document.getElementById('install-banner').style.display='none';
+var durees={retainer:{t:.5,m:1},reels:{t:.1,m:.2},aftermovie:{t:.5,m:1},tournage:{t:1,m:0},montage:{t:0,m:1},corporate:{t:2,m:3},derushs:{t:0,m:0},youtube:{t:0,m:0}};
+var ytPrice=200,ytMin=10;
+var conseils={
+  retainer:"Exige un engagement 3 mois minimum. Detaille le nombre de videos incluses et les jours de tournage par mois. C est ton revenu de base, Christian.",
+  reels:"Propose un pack mensuel plutot qu a l unite. A 120 EUR/video x 12 = 1 440 EUR/mois par client.",
+  aftermovie:"Presente ce prix comme un forfait tout compris tournage + montage + livraison. Ideal en complement de tes retainers.",
+  tournage:"Facture a la journee, pas a l heure. Precise ce qui est inclus : deplacement, matos, son.",
+  montage:"Fixe 1 revision incluse max. Precise le format de livraison et le delai attendu.",
+  corporate:"Toujours demander un brief ecrit avant de devis. Le tarif varie selon la duree finale.",
+  derushs:"Integre le derushage dans ton prix global de montage. En ligne separee uniquement pour les gros volumes comme un mariage ou une journee d evenement.",
+youtube:"Propose ce pack aux createurs YouTube qui cherchent a recycler leur contenu sur TikTok/Reels. 1 video YouTube = 2-3 formats courts. Tres rentable car tu montes tout depuis les memes rushes."
+};
+
+function selectYT(btn){
+  document.querySelectorAll('.pack-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  ytPrice=parseInt(btn.dataset.price);
+  ytMin=parseInt(btn.dataset.yt);
+  updatePackDetail();
+  calculate();
+}
+function updatePackDetail(){
+  var tiktokTotal=qty.tiktok*80;
+  var total=ytPrice+tiktokTotal;
+  document.getElementById('pack-detail').textContent='YouTube '+ytMin+'min ('+ytPrice+' EUR) + '+qty.tiktok+' TikTok/Reels ('+tiktokTotal+' EUR) = '+total+' EUR';
+}
+function fmt(n){return n===0?'0j':n%1===0?n+'j':n.toFixed(1)+'j';}
+function fmtMin(h){var m=Math.round(h*60);if(m<60)return m+'min';var hh=Math.floor(m/60),mm=m%60;return mm>0?hh+'h'+mm:hh+'h';}
+function selectType(btn){
+  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  currentType=btn.dataset.type;
+  basePrice=parseInt(btn.dataset.base);
+  document.getElementById('qty-jours-row').classList.add('hidden');
+  document.getElementById('qty-videos-row').classList.add('hidden');
+  document.getElementById('qty-rush-row').classList.add('hidden');
+  document.getElementById('duree-normal').classList.add('hidden');
+  document.getElementById('duree-derushs').classList.add('hidden');
+  if(currentType==='tournage'||currentType==='montage')document.getElementById('qty-jours-row').classList.remove('hidden');
+  if(currentType==='retainer'||currentType==='reels')document.getElementById('qty-videos-row').classList.remove('hidden');
+  if(currentType==='derushs'){document.getElementById('qty-rush-row').classList.remove('hidden');document.getElementById('duree-derushs').classList.remove('hidden');}
+  else{document.getElementById('duree-normal').classList.remove('hidden');}
+  if(currentType==='youtube'){document.getElementById('youtube-pack-section').classList.remove('hidden');updatePackDetail();}
+  else{document.getElementById('youtube-pack-section').classList.add('hidden');}
+  calculate();
+}
+function changeQty(type,delta){
+  qty[type]=Math.max(1,qty[type]+delta);
+  if(document.getElementById('qty-'+type))document.getElementById('qty-'+type).textContent=qty[type];
+  if(type==='tiktok')updatePackDetail();
+  calculate();
+}
+function calculate(){
+  var base=basePrice,nbV=qty.videos,nbJ=qty.jours,nbR=qty.rush;
+  if(currentType==='tournage'||currentType==='montage')base=basePrice*nbJ;
+  if(currentType==='reels')base=basePrice*nbV;
+  if(currentType==='retainer')base=basePrice+(nbV>8?(nbV-8)*80:0);
+  if(currentType==='derushs')base=basePrice*nbR;
+  if(currentType==='youtube')base=ytPrice+(qty.tiktok*80);
+  var rushOpt=document.getElementById('toggle-rush').checked;
+  var dep=document.getElementById('toggle-deplacement').checked;
+  var rev=document.getElementById('toggle-revision').checked;
+  var drt=document.getElementById('toggle-droits').checked;
+  var rushAmt=rushOpt?Math.round(base*.2):0;
+  var depAmt=dep?60:0,revAmt=rev?50:0,drtAmt=drt?Math.round(base*.3):0;
+  var total=base+rushAmt+depAmt+revAmt+drtAmt;
+  var acompte=Math.round(total*.3),solde=total-acompte,net=Math.round(total*.78);
+  document.getElementById('result-price').textContent=total.toLocaleString('fr-FR')+' EUR';
+  document.getElementById('b-base').textContent=base.toLocaleString('fr-FR')+' EUR';
+  document.getElementById('b-rush').textContent='+'+rushAmt+' EUR';
+  document.getElementById('b-dep').textContent='+'+depAmt+' EUR';
+  document.getElementById('b-rev').textContent='+'+revAmt+' EUR';
+  document.getElementById('b-drt').textContent='+'+drtAmt+' EUR';
+  document.getElementById('b-acompte').textContent=acompte.toLocaleString('fr-FR')+' EUR';
+  document.getElementById('b-solde').textContent=solde.toLocaleString('fr-FR')+' EUR';
+  document.getElementById('b-net').textContent=net.toLocaleString('fr-FR')+' EUR';
+  document.getElementById('b-rush-row').classList.toggle('hidden',!rushOpt);
+  document.getElementById('b-dep-row').classList.toggle('hidden',!dep);
+  document.getElementById('b-rev-row').classList.toggle('hidden',!rev);
+  document.getElementById('b-drt-row').classList.toggle('hidden',!drt);
+  document.getElementById('conseil-text').textContent=conseils[currentType];
+  if(currentType==='youtube'){
+    var heuresYT=(ytMin/60)*2;
+    document.getElementById('d-tournage').textContent='0j';
+    document.getElementById('d-montage').textContent=Math.round(heuresYT*10)/10+'h';
+    document.getElementById('d-total').textContent=Math.round(heuresYT*10)/10+'h';
+    document.getElementById('bval-tournage').textContent='0j';
+    document.getElementById('bval-montage').textContent=Math.round(heuresYT*10)/10+'h';
+    document.getElementById('bar-tournage').style.width='0%';
+    document.getElementById('bar-montage').style.width='100%';
+    document.getElementById('taux-horaire').textContent=heuresYT>0?Math.round(total/heuresYT)+' EUR/h':'--';
+    document.getElementById('obj-jours').textContent='~'+Math.round(heuresYT*4)+'h/mois';
+  } else if(currentType!=='derushs'){
+    var d=durees[currentType];
+    var tT=d.t,tM=d.m;
+    if(currentType==='tournage'){tT=nbJ;tM=0;}
+    else if(currentType==='montage'){tT=0;tM=nbJ;}
+    else if(currentType==='reels'){tT=parseFloat((d.t*nbV).toFixed(1));tM=parseFloat((d.m*nbV).toFixed(1));}
+    else if(currentType==='retainer'){tT=parseFloat((d.t*(nbV/8)).toFixed(1));tM=parseFloat((d.m*(nbV/8)).toFixed(1));}
+    var tTot=parseFloat((tT+tM).toFixed(1));
+    document.getElementById('d-tournage').textContent=fmt(tT);
+    document.getElementById('d-montage').textContent=fmt(tM);
+    document.getElementById('d-total').textContent=fmt(tTot);
+    document.getElementById('bval-tournage').textContent=fmt(tT);
+    document.getElementById('bval-montage').textContent=fmt(tM);
+    document.getElementById('bar-tournage').style.width=(tTot>0?Math.round(tT/tTot*100):0)+'%';
+    document.getElementById('bar-montage').style.width=(tTot>0?Math.round(tM/tTot*100):0)+'%';
+    var heures=tTot*8;
+    document.getElementById('taux-horaire').textContent=heures>0?Math.round(total/heures)+' EUR/h':'--';
+    document.getElementById('obj-jours').textContent='~'+(currentType==='retainer'?Math.round(tTot*3+2):Math.round(tTot*6))+'j/mois';
+  } else {
+    var tempsD=nbR/4;
+    document.getElementById('d-rush-h').textContent=nbR+'h';
+    document.getElementById('d-rush-t').textContent=fmtMin(tempsD);
+    document.getElementById('bval-derushs').textContent=fmtMin(tempsD);
+    document.getElementById('derushs-detail').textContent=nbR+'h de rush = '+fmtMin(tempsD)+' de derushage (ratio 4:1)';
+    document.getElementById('taux-horaire').textContent=tempsD>0?Math.round(total/tempsD)+' EUR/h':'--';
+    document.getElementById('obj-jours').textContent='~'+Math.round(tempsD*6*10)/10+'h/mois';
+  }
+}
+calculate();
+document.getElementById('qty-videos-row').classList.remove('hidden');
+document.getElementById('duree-normal').classList.remove('hidden');
+</script>
+</body>
+</html>
